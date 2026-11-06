@@ -1,0 +1,29 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('abonnements', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->timestamp('date_debut')->nullable();
+            $table->timestamp('date_fin')->nullable();
+            $table->decimal('montant', 10, 2)->default(5000);
+            $table->foreignUuid('resident_id')->constrained('residents')->cascadeOnDelete();
+            $table->foreignUuid('plan_id')->nullable()->constrained('plans')->nullOnDelete();
+            // Lien dur au paiement d'origine (idempotence d'activation fiable).
+            $table->foreignUuid('payement_id')->nullable()->constrained('payements')->nullOnDelete();
+            $table->timestamps();
+            $table->softDeletes();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('abonnements');
+    }
+};
